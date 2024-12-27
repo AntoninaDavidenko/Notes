@@ -107,7 +107,8 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
                                 "content" to record.content,
                                 "type" to record.type,
                                 "is_checked" to (if (record.type == "checkbox") false else null),
-                                "order" to index
+                                "order" to index,
+                                "styles" to record.styles.map { it.name }
                             )
                             noteRef.collection("records").add(recordData)
                         }
@@ -151,7 +152,8 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
                 content = document.getString("content") ?: "",
                 type = document.getString("type") ?: "text",
                 isChecked = document.getBoolean("is_checked"),
-                order = document.getLong("order")?.toInt() ?: 0
+                order = document.getLong("order")?.toInt() ?: 0,
+                styles = (document.get("styles") as? List<String>)?.map { TextStyle.valueOf(it) } ?: emptyList()
             )
         }.sortedBy { it.order }
     }
@@ -175,12 +177,12 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
             "content" to updatedRecord.content,
             "type" to updatedRecord.type,
             "is_checked" to updatedRecord.isChecked,
-            "order" to updatedRecord.order // Оставляем порядок без изменений
+            "order" to updatedRecord.order,
+            "styles" to updatedRecord.styles.map { it.name }
         )
 
         recordRef.set(updatedData)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { exception -> onFailure(exception) }
     }
-
 }

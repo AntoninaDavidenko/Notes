@@ -16,4 +16,12 @@ data class Record(
     val content: String = "",
     val isChecked: Boolean? = null,
     val order: Int = 0,
+    val styles: List<TextStyle> = emptyList()
 )
+
+enum class TextStyle {
+    BOLD,
+    ITALIC,
+    UNDERLINE,
+    STRIKETHROUGH
+}

@@ -6,27 +6,28 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Delete
-
 
 class NoteActivity : ComponentActivity() {
-
     private val auth = FirebaseAuth.getInstance()
     private val noteDatabase = NoteDatabase(FirebaseFirestore.getInstance())
-    private var noteId: String? = null // Переменная для хранения ID заметки
+    private var noteId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,7 @@ class NoteActivity : ComponentActivity() {
         }
     }
 
+
     private fun saveNoteToDatabase(title: String, records: List<Record>) {
         val userId = auth.currentUser?.uid
         if (userId == null) {
@@ -58,7 +60,7 @@ class NoteActivity : ComponentActivity() {
         }
 
         val note = Note(
-            id =  noteId ?: FirebaseFirestore.getInstance().collection("notes").document().id,
+            id = noteId ?: FirebaseFirestore.getInstance().collection("notes").document().id,
             title = title
         )
 
@@ -69,8 +71,7 @@ class NoteActivity : ComponentActivity() {
             onSuccess = {
                 runOnUiThread {
                     Toast.makeText(this, "Note saved successfully", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, NotesActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, NotesActivity::class.java))
                     finish()
                 }
             },
@@ -115,8 +116,7 @@ class NoteActivity : ComponentActivity() {
             onSuccess = {
                 runOnUiThread {
                     Toast.makeText(this, "Note deleted successfully", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, NotesActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, NotesActivity::class.java))
                     finish()
                 }
             },
@@ -137,18 +137,18 @@ fun NoteScreen(
     onDeleteNote: () -> Unit
 ) {
     val context = LocalContext.current
-    var titleState by remember { mutableStateOf(TextFieldValue()) }
+    var titleState by remember { mutableStateOf("") }
     var records by remember { mutableStateOf(mutableListOf<Record>()) }
-    var currentRecordText by remember { mutableStateOf(TextFieldValue()) }
+    var currentRecordText by remember { mutableStateOf("") }
+    var currentStyles by remember { mutableStateOf(setOf<TextStyle>()) }
     var isCheckboxMode by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
-    // Загрузка заметки, если noteId не null
     LaunchedEffect(noteId) {
         if (noteId != null) {
             onLoadNote { note, loadedRecords ->
-                titleState = TextFieldValue(note.title)
+                titleState = note.title
                 records = loadedRecords.toMutableList()
             }
         }
@@ -160,8 +160,8 @@ fun NoteScreen(
                 title = { Text(if (noteId != null) "Edit Note" else "Create Note") },
                 actions = {
                     if (noteId != null) {
-                        IconButton(onClick = { onDeleteNote() }) {
-                            Icon(Icons.Rounded.Delete, contentDescription = "Delete Note")
+                        IconButton(onClick = onDeleteNote) {
+                            Icon(Icons.Filled.Delete, "Delete Note")
                         }
                     }
                 }
@@ -191,20 +191,67 @@ fun NoteScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                IconButton(
+                    onClick = { currentStyles = currentStyles.toggle(TextStyle.BOLD) }
+                ) {
+                    Icon(
+                        Icons.Filled.FormatBold,
+                        contentDescription = "Bold",
+                        tint = if (currentStyles.contains(TextStyle.BOLD)) MaterialTheme.colors.primary else Color.Gray
+                    )
+                }
+                IconButton(
+                    onClick = { currentStyles = currentStyles.toggle(TextStyle.ITALIC) }
+                ) {
+                    Icon(
+                        Icons.Filled.FormatItalic,
+                        contentDescription = "Italic",
+                        tint = if (currentStyles.contains(TextStyle.ITALIC)) MaterialTheme.colors.primary else Color.Gray
+                    )
+                }
+                IconButton(
+                    onClick = { currentStyles = currentStyles.toggle(TextStyle.UNDERLINE) }
+                ) {
+                    Icon(
+                        Icons.Filled.FormatUnderlined,
+                        contentDescription = "Underline",
+                        tint = if (currentStyles.contains(TextStyle.UNDERLINE)) MaterialTheme.colors.primary else Color.Gray
+                    )
+                }
+                IconButton(
+                    onClick = { currentStyles = currentStyles.toggle(TextStyle.STRIKETHROUGH) }
+                ) {
+                    Icon(
+                        Icons.Filled.StrikethroughS,
+                        contentDescription = "Strikethrough",
+                        tint = if (currentStyles.contains(TextStyle.STRIKETHROUGH)) MaterialTheme.colors.primary else Color.Gray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Button(
                     onClick = {
-                        if (currentRecordText.text.isNotBlank()) {
+                        if (currentRecordText.isNotBlank()) {
                             records.add(
                                 Record(
-                                    content = currentRecordText.text,
+                                    content = currentRecordText,
                                     type = if (isCheckboxMode) "checkbox" else "text",
-
+                                    styles = currentStyles.toList()
                                 )
                             )
-                            currentRecordText = TextFieldValue() // Очистить поле ввода
+                            currentRecordText = ""
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -226,9 +273,9 @@ fun NoteScreen(
 
             Button(
                 onClick = {
-                    if (titleState.text.isNotBlank()) {
+                    if (titleState.isNotBlank()) {
                         coroutineScope.launch {
-                            onNoteSaved(titleState.text, records)
+                            onNoteSaved(titleState, records)
                         }
                     } else {
                         Toast.makeText(
@@ -247,11 +294,30 @@ fun NoteScreen(
 
             Text("Records:", style = MaterialTheme.typography.h6)
             records.forEach { record ->
-                Text(
-                    text = if (record.type == "checkbox") "[ ] ${record.content}" else record.content,
-                    style = MaterialTheme.typography.body1
-                )
+                    Text(
+                        text = if (record.type == "checkbox") "[ ] ${record.content}" else record.content,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = if (record.styles.contains(TextStyle.BOLD)) FontWeight.Bold else FontWeight.Normal,
+                        fontStyle = if (record.styles.contains(TextStyle.ITALIC)) FontStyle.Italic else FontStyle.Normal,
+                        textDecoration = when {
+                            record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(TextStyle.STRIKETHROUGH) ->
+                                TextDecoration.combine(listOf(TextDecoration.Underline, TextDecoration.LineThrough))
+                            record.styles.contains(TextStyle.UNDERLINE) -> TextDecoration.Underline
+                            record.styles.contains(TextStyle.STRIKETHROUGH) -> TextDecoration.LineThrough
+                            else -> TextDecoration.None
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
             }
+
         }
+    }
+}
+
+private fun Set<TextStyle>.toggle(style: TextStyle): Set<TextStyle> {
+    return if (contains(style)) {
+        minus(style)
+    } else {
+        plus(style)
     }
 }
