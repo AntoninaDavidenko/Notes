@@ -248,6 +248,7 @@ fun NoteScreen(
                                 Record(
                                     content = currentRecordText,
                                     type = if (isCheckboxMode) "checkbox" else "text",
+                                    isChecked = if (isCheckboxMode) false else null,
                                     styles = currentStyles.toList()
                                 )
                             )
@@ -294,20 +295,43 @@ fun NoteScreen(
 
             Text("Records:", style = MaterialTheme.typography.h6)
             records.forEach { record ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (record.type == "checkbox") {
+                        record.isChecked?.let { isChecked ->
+                            val isCheckedState =
+                                remember { mutableStateOf(record.isChecked ?: false) }
+                            Checkbox(
+                                checked = isCheckedState.value,
+                                onCheckedChange = { isCheckedNew ->
+                                    isCheckedState.value = isCheckedNew
+                                    record.isChecked = isCheckedNew
+                                }
+                            )
+                        }
+                    }
                     Text(
-                        text = if (record.type == "checkbox") "[ ] ${record.content}" else record.content,
+                        text = record.content,
                         style = MaterialTheme.typography.body1,
                         fontWeight = if (record.styles.contains(TextStyle.BOLD)) FontWeight.Bold else FontWeight.Normal,
                         fontStyle = if (record.styles.contains(TextStyle.ITALIC)) FontStyle.Italic else FontStyle.Normal,
                         textDecoration = when {
-                            record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(TextStyle.STRIKETHROUGH) ->
-                                TextDecoration.combine(listOf(TextDecoration.Underline, TextDecoration.LineThrough))
+                            record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(
+                                TextStyle.STRIKETHROUGH
+                            ) ->
+                                TextDecoration.combine(
+                                    listOf(
+                                        TextDecoration.Underline,
+                                        TextDecoration.LineThrough
+                                    )
+                                )
+
                             record.styles.contains(TextStyle.UNDERLINE) -> TextDecoration.Underline
                             record.styles.contains(TextStyle.STRIKETHROUGH) -> TextDecoration.LineThrough
                             else -> TextDecoration.None
                         },
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
+                }
             }
 
         }

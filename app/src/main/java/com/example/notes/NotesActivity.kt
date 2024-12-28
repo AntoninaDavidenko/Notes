@@ -170,7 +170,7 @@ fun NoteCard(note: Note, onNoteClick: (String) -> Unit) {
 
             Text(
                 text = records.joinToString(separator = "\n") { record ->
-                    if (record.type == "checkbox") "[ ] ${record.content}" else record.content
+                     record.content
                 },
                 style = MaterialTheme.typography.body2,
                 maxLines = 3, // Ограничение в 3 строки
