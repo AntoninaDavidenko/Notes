@@ -22,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
+import androidx.compose.ui.graphics.Color
+
 class NotesActivity : ComponentActivity() {
     private val noteDatabase = NoteDatabase(FirebaseFirestore.getInstance())
 
@@ -31,7 +33,7 @@ class NotesActivity : ComponentActivity() {
             NotesScreen(
                 onLogout = { logout() },
                 onCreateNote = { navigateToNoteActivity() },
-                onEditNote = { noteId -> navigateToNoteActivity(noteId) },
+                onViewNote = { noteId -> navigateToNoteViewActivity(noteId) },
                 noteDatabase = noteDatabase
             )
         }
@@ -42,6 +44,12 @@ class NotesActivity : ComponentActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun navigateToNoteViewActivity(noteId: String) {
+        val intent = Intent(this, NoteViewActivity::class.java)
+        intent.putExtra("NOTE_ID", noteId)
+        startActivity(intent)
     }
 
     private fun navigateToNoteActivity(noteId: String? = null) {
@@ -55,11 +63,12 @@ class NotesActivity : ComponentActivity() {
 fun NotesScreen(
     onLogout: () -> Unit,
     onCreateNote: () -> Unit,
-    onEditNote: (String) -> Unit,
+    onViewNote: (String) -> Unit,
     noteDatabase: NoteDatabase
 ) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val notes = remember { mutableStateListOf<Note>() }
+
 
     LaunchedEffect(userId) {
         if (userId != null) {
@@ -99,7 +108,7 @@ fun NotesScreen(
                 if (notes.isEmpty()) {
                     Text("No notes available.", modifier = Modifier.padding(16.dp))
                 } else {
-                    NotesGrid(notes = notes, onNoteClick = onEditNote)
+                    NotesGrid(notes = notes, onNoteClick = onViewNote)
                 }
             }
         }

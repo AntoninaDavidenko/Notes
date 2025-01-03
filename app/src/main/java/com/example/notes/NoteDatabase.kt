@@ -161,7 +161,7 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
     fun updateRecord(
         userId: String,
         noteId: String,
-        recordId: String,
+        order: Int,
         updatedRecord: Record,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
@@ -171,7 +171,7 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
             .collection("notes")
             .document(noteId)
             .collection("records")
-            .document(recordId)
+            .document(order.toString())
 
         val updatedData = mapOf(
             "content" to updatedRecord.content,

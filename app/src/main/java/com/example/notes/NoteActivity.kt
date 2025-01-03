@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -71,7 +72,10 @@ class NoteActivity : ComponentActivity() {
             onSuccess = {
                 runOnUiThread {
                     Toast.makeText(this, "Note saved successfully", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, NotesActivity::class.java))
+                    val intent = Intent(this, NoteViewActivity::class.java).apply {
+                        putExtra("NOTE_ID", note.id)
+                    }
+                    startActivity(intent)
                     finish()
                 }
             },
@@ -142,6 +146,7 @@ fun NoteScreen(
     var currentRecordText by remember { mutableStateOf("") }
     var currentStyles by remember { mutableStateOf(setOf<TextStyle>()) }
     var isCheckboxMode by remember { mutableStateOf(false) }
+    var editingRecordIndex by remember { mutableStateOf<Int?>(null) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -244,20 +249,26 @@ fun NoteScreen(
                 Button(
                     onClick = {
                         if (currentRecordText.isNotBlank()) {
-                            records.add(
-                                Record(
-                                    content = currentRecordText,
-                                    type = if (isCheckboxMode) "checkbox" else "text",
-                                    isChecked = if (isCheckboxMode) false else null,
-                                    styles = currentStyles.toList()
-                                )
+                            val newRecord = Record(
+                                content = currentRecordText,
+                                type = if (isCheckboxMode) "checkbox" else "text",
+                                isChecked = if (isCheckboxMode) false else null,
+                                styles = currentStyles.toList()
                             )
+                            if (editingRecordIndex == null) {
+                                records.add(newRecord)
+                            } else {
+                                if (records[editingRecordIndex!!].isChecked != null)
+                                    newRecord.isChecked = records[editingRecordIndex!!].isChecked
+                                records[editingRecordIndex!!] = newRecord
+                                editingRecordIndex = null
+                            }
                             currentRecordText = ""
                         }
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Add Record")
+                    Text(if (editingRecordIndex == null) "Add Record" else "Update Record")
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -294,8 +305,11 @@ fun NoteScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Records:", style = MaterialTheme.typography.h6)
-            records.forEach { record ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            records.forEachIndexed { index, record ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     if (record.type == "checkbox") {
                         record.isChecked?.let { isChecked ->
                             val isCheckedState =
@@ -315,9 +329,7 @@ fun NoteScreen(
                         fontWeight = if (record.styles.contains(TextStyle.BOLD)) FontWeight.Bold else FontWeight.Normal,
                         fontStyle = if (record.styles.contains(TextStyle.ITALIC)) FontStyle.Italic else FontStyle.Normal,
                         textDecoration = when {
-                            record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(
-                                TextStyle.STRIKETHROUGH
-                            ) ->
+                            record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(TextStyle.STRIKETHROUGH) ->
                                 TextDecoration.combine(
                                     listOf(
                                         TextDecoration.Underline,
@@ -329,11 +341,26 @@ fun NoteScreen(
                             record.styles.contains(TextStyle.STRIKETHROUGH) -> TextDecoration.LineThrough
                             else -> TextDecoration.None
                         },
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .weight(1f)
+                            .clickable {
+                                currentRecordText = record.content
+                                isCheckboxMode = record.type == "checkbox"
+                                currentStyles = record.styles.toSet()
+                                editingRecordIndex = index
+                            }
                     )
+
+                    IconButton(
+                        onClick = {
+                            records = records.toMutableList().apply { removeAt(index) }
+                        }
+                    ) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete Record")
+                    }
                 }
             }
-
         }
     }
 }

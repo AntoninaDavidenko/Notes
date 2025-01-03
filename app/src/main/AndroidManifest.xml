@@ -18,6 +18,7 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".NoteActivity" />
+        <activity android:name=".NoteViewActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
