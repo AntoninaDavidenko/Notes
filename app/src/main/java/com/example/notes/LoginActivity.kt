@@ -11,13 +11,13 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 
@@ -105,7 +105,7 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun navigateToNotesActivity() {
-        val intent = Intent(this, NotesActivity::class.java)
+        val intent = Intent(this, AllNotesActivity::class.java)
         startActivity(intent)
         finish()
     }
@@ -143,16 +143,20 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onLogin(email, password) }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { onLogin(email, password) },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
+            modifier = Modifier.fillMaxWidth()) {
             Text("Login")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onGoogleLogin, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onGoogleLogin,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
+            modifier = Modifier.fillMaxWidth()) {
             Text("Login with Google")
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onNavigateToRegister) {
-            Text("Don't have an account? Register")
+            Text("Don't have an account? Register", color = Color(0xFF246156))
         }
     }
 }

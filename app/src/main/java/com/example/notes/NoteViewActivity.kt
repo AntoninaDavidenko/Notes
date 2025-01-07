@@ -22,9 +22,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class NoteViewActivity : ComponentActivity() {
     private val auth = FirebaseAuth.getInstance()
@@ -48,7 +45,7 @@ class NoteViewActivity : ComponentActivity() {
                 },
                 onEditNote = {
                     startActivity(
-                        Intent(this, NoteActivity::class.java).apply {
+                        Intent(this, NoteEditActivity::class.java).apply {
                             putExtra("NOTE_ID", noteId)
                         }
                     )
@@ -90,7 +87,7 @@ class NoteViewActivity : ComponentActivity() {
             onSuccess = {
                 runOnUiThread {
                     Toast.makeText(this, "Note deleted successfully", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, NotesActivity::class.java))
+                    startActivity(Intent(this, AllNotesActivity::class.java))
                     finish()
                 }
             },
@@ -129,9 +126,11 @@ fun NoteViewScreen(
         topBar = {
             TopAppBar(
                 title = { Text("View Note") },
+                backgroundColor = Color(0xFF246156),
+                contentColor = Color.White,
                 navigationIcon = {
                     IconButton(onClick = {
-                        context.startActivity(Intent(context, NotesActivity::class.java))
+                        context.startActivity(Intent(context, AllNotesActivity::class.java))
                     }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
@@ -144,7 +143,7 @@ fun NoteViewScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onEditNote, backgroundColor = Color.Green) {
+            FloatingActionButton(onClick = onEditNote, backgroundColor = Color(0xFF246156), contentColor = Color.White) {
                 Icon(Icons.Filled.Edit, contentDescription = "Edit Note")
             }
         }
@@ -176,7 +175,12 @@ fun NoteViewScreen(
                         if (record.type == "checkbox") {
                             Checkbox(
                                 checked = record.isChecked == true,
-                                onCheckedChange = null // Чекбоксы только для просмотра
+                                onCheckedChange = null, // Чекбоксы только для просмотра
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color(0xFF246156),  // Колір для відміченого стану
+                                    uncheckedColor = Color.Gray,      // Колір для невідміченого стану
+                                    checkmarkColor = Color.White      // Колір галочки
+                                )
                             )
                         }
                         Text(

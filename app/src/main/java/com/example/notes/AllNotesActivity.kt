@@ -9,12 +9,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
@@ -24,7 +23,7 @@ import java.util.*
 
 import androidx.compose.ui.graphics.Color
 
-class NotesActivity : ComponentActivity() {
+class AllNotesActivity : ComponentActivity() {
     private val noteDatabase = NoteDatabase(FirebaseFirestore.getInstance())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +52,7 @@ class NotesActivity : ComponentActivity() {
     }
 
     private fun navigateToNoteActivity(noteId: String? = null) {
-        val intent = Intent(this, NoteActivity::class.java)
+        val intent = Intent(this, NoteEditActivity::class.java)
         noteId?.let { intent.putExtra("NOTE_ID", it) }
         startActivity(intent)
     }
@@ -87,16 +86,19 @@ fun NotesScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Notes") },
+                backgroundColor = Color(0xFF246156),
+                contentColor = Color.White,
                 actions = {
-                    Button(onClick = onLogout) {
-                        Text("Logout")
+                    TextButton(onClick = onLogout,
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),) {
+                        Text("Logout", color = Color.White)
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onCreateNote) {
-                Text("+")
+            FloatingActionButton(onClick = onCreateNote, backgroundColor = Color(0xFF246156), contentColor = Color.White) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Note")
             }
         },
         content = { padding ->

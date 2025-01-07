@@ -2,9 +2,7 @@ package com.example.notes
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -13,6 +11,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Инициализация Firestore
         firestore = FirebaseFirestore.getInstance()
@@ -29,7 +28,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun navigateToNotesActivity() {
-        val intent = Intent(this, NotesActivity::class.java)
+        val intent = Intent(this, AllNotesActivity::class.java)
         startActivity(intent)
         finish() // Закрываем MainActivity, чтобы пользователь не мог вернуться назад
     }

@@ -15,6 +15,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
@@ -61,7 +62,7 @@ class RegisterActivity : ComponentActivity() {
     }
 
     private fun navigateToNotesActivity() {
-        val intent = Intent(this, NotesActivity::class.java)
+        val intent = Intent(this, AllNotesActivity::class.java)
         startActivity(intent)
         finish()
     }
@@ -98,12 +99,14 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onRegister(email, password) }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { onRegister(email, password) },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
+            modifier = Modifier.fillMaxWidth()) {
             Text("Register")
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onNavigateToLogin) {
-            Text("Already have an account? Login")
+            Text("Already have an account? Login", color = Color(0xFF246156))
         }
     }
 }

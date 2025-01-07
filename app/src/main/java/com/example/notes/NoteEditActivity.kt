@@ -7,8 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -25,7 +23,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
-class NoteActivity : ComponentActivity() {
+class NoteEditActivity : ComponentActivity() {
     private val auth = FirebaseAuth.getInstance()
     private val noteDatabase = NoteDatabase(FirebaseFirestore.getInstance())
     private var noteId: String? = null
@@ -120,7 +118,7 @@ class NoteActivity : ComponentActivity() {
             onSuccess = {
                 runOnUiThread {
                     Toast.makeText(this, "Note deleted successfully", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, NotesActivity::class.java))
+                    startActivity(Intent(this, AllNotesActivity::class.java))
                     finish()
                 }
             },
@@ -163,6 +161,8 @@ fun NoteScreen(
         topBar = {
             TopAppBar(
                 title = { Text(if (noteId != null) "Edit Note" else "Create Note") },
+                backgroundColor = Color(0xFF246156),
+                contentColor = Color.White,
                 actions = {
                     if (noteId != null) {
                         IconButton(onClick = onDeleteNote) {
@@ -208,7 +208,7 @@ fun NoteScreen(
                     Icon(
                         Icons.Filled.FormatBold,
                         contentDescription = "Bold",
-                        tint = if (currentStyles.contains(TextStyle.BOLD)) MaterialTheme.colors.primary else Color.Gray
+                        tint = if (currentStyles.contains(TextStyle.BOLD)) Color(0xFF246156) else Color.Gray
                     )
                 }
                 IconButton(
@@ -217,7 +217,7 @@ fun NoteScreen(
                     Icon(
                         Icons.Filled.FormatItalic,
                         contentDescription = "Italic",
-                        tint = if (currentStyles.contains(TextStyle.ITALIC)) MaterialTheme.colors.primary else Color.Gray
+                        tint = if (currentStyles.contains(TextStyle.ITALIC)) Color(0xFF246156) else Color.Gray
                     )
                 }
                 IconButton(
@@ -226,7 +226,7 @@ fun NoteScreen(
                     Icon(
                         Icons.Filled.FormatUnderlined,
                         contentDescription = "Underline",
-                        tint = if (currentStyles.contains(TextStyle.UNDERLINE)) MaterialTheme.colors.primary else Color.Gray
+                        tint = if (currentStyles.contains(TextStyle.UNDERLINE)) Color(0xFF246156) else Color.Gray
                     )
                 }
                 IconButton(
@@ -235,7 +235,7 @@ fun NoteScreen(
                     Icon(
                         Icons.Filled.StrikethroughS,
                         contentDescription = "Strikethrough",
-                        tint = if (currentStyles.contains(TextStyle.STRIKETHROUGH)) MaterialTheme.colors.primary else Color.Gray
+                        tint = if (currentStyles.contains(TextStyle.STRIKETHROUGH)) Color(0xFF246156) else Color.Gray
                     )
                 }
             }
@@ -266,7 +266,8 @@ fun NoteScreen(
                             currentRecordText = ""
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(if (editingRecordIndex == null) "Add Record" else "Update Record")
                 }
@@ -275,6 +276,7 @@ fun NoteScreen(
 
                 Button(
                     onClick = { isCheckboxMode = !isCheckboxMode },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(if (isCheckboxMode) "Switch to Text" else "Switch to Checkbox")
@@ -297,6 +299,7 @@ fun NoteScreen(
                         ).show()
                     }
                 },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Save Note")
@@ -319,7 +322,12 @@ fun NoteScreen(
                                 onCheckedChange = { isCheckedNew ->
                                     isCheckedState.value = isCheckedNew
                                     record.isChecked = isCheckedNew
-                                }
+                                },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color(0xFF246156),  // Колір для відміченого стану
+                                    uncheckedColor = Color.Gray,      // Колір для невідміченого стану
+                                    checkmarkColor = Color.White      // Колір галочки
+                                )
                             )
                         }
                     }

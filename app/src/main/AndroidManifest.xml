@@ -14,10 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Notes"
         tools:targetApi="31">
-        <activity android:name=".NotesActivity" />
+        <activity android:name=".AllNotesActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".NoteActivity" />
+        <activity android:name=".NoteEditActivity" />
         <activity android:name=".NoteViewActivity" />
         <activity
             android:name=".MainActivity"
