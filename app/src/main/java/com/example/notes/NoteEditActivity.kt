@@ -5,8 +5,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -163,85 +167,146 @@ fun NoteScreen(
                 title = { Text(if (noteId != null) "Edit Note" else "Create Note") },
                 backgroundColor = Color(0xFF246156),
                 contentColor = Color.White,
-                actions = {
-                    if (noteId != null) {
-                        IconButton(onClick = onDeleteNote) {
-                            Icon(Icons.Filled.Delete, "Delete Note")
+                navigationIcon = {
+                    IconButton(onClick = {
+                        if (noteId == null) {
+                            context.startActivity(Intent(context, AllNotesActivity::class.java))
+                        } else {
+                            context.startActivity(Intent(context, NoteViewActivity::class.java).apply {
+                                putExtra("NOTE_ID", noteId)
+                            })
                         }
+                        (context as ComponentActivity).finish()
+                    }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        if (titleState.isNotBlank()) {
+                            onNoteSaved(titleState, records)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Title cannot be empty",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }) {
+                        Icon(Icons.Default.Check, contentDescription = "Save Note")
                     }
                 }
             )
+        },
+        bottomBar = @androidx.compose.runtime.Composable {
+            BottomAppBar(
+                backgroundColor = Color.White,
+                contentColor = Color(0xFF246156)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    IconButton(
+                        onClick = { currentStyles = currentStyles.toggle(TextStyle.BOLD) }
+                    ) {
+                        Icon(
+                            Icons.Filled.FormatBold,
+                            contentDescription = "Bold",
+                            tint = if (currentStyles.contains(TextStyle.BOLD)) Color(0xFF246156) else Color.Gray
+                        )
+                    }
+                    IconButton(
+                        onClick = { currentStyles = currentStyles.toggle(TextStyle.ITALIC) }
+                    ) {
+                        Icon(
+                            Icons.Filled.FormatItalic,
+                            contentDescription = "Italic",
+                            tint = if (currentStyles.contains(TextStyle.ITALIC)) Color(0xFF246156) else Color.Gray
+                        )
+                    }
+                    IconButton(
+                        onClick = { currentStyles = currentStyles.toggle(TextStyle.UNDERLINE) }
+                    ) {
+                        Icon(
+                            Icons.Filled.FormatUnderlined,
+                            contentDescription = "Underline",
+                            tint = if (currentStyles.contains(TextStyle.UNDERLINE)) Color(0xFF246156) else Color.Gray
+                        )
+                    }
+                    IconButton(
+                        onClick = { currentStyles = currentStyles.toggle(TextStyle.STRIKETHROUGH) }
+                    ) {
+                        Icon(
+                            Icons.Filled.StrikethroughS,
+                            contentDescription = "Strikethrough",
+                            tint = if (currentStyles.contains(TextStyle.STRIKETHROUGH)) Color(
+                                0xFF246156
+                            ) else Color.Gray
+                        )
+                    }
+                    IconButton(
+                        onClick = { isCheckboxMode = !isCheckboxMode }
+                    ) {
+                        Icon(
+                            imageVector = if (isCheckboxMode) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
+                            contentDescription = "Checkbox Mode",
+                            tint = if (isCheckboxMode) Color(0xFF246156) else Color.Gray
+                        )
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top
+                .padding(16.dp)
         ) {
+            // Поле для заголовка
             TextField(
                 value = titleState,
                 onValueChange = { titleState = it },
                 label = { Text("Title") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp)),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color(0xFF246156),
+                    unfocusedIndicatorColor = Color.Gray,
+                    cursorColor = Color(0xFF246156),
+                    textColor = Color.Black,
+                    focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
+                    unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                ),
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
+            // Поле для контента
             TextField(
                 value = currentRecordText,
                 onValueChange = { currentRecordText = it },
                 label = { Text("Content") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp)),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color(0xFF246156),
+                    unfocusedIndicatorColor = Color.Gray,
+                    cursorColor = Color(0xFF246156),
+                    textColor = Color.Black,
+                    focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
+                    unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                IconButton(
-                    onClick = { currentStyles = currentStyles.toggle(TextStyle.BOLD) }
-                ) {
-                    Icon(
-                        Icons.Filled.FormatBold,
-                        contentDescription = "Bold",
-                        tint = if (currentStyles.contains(TextStyle.BOLD)) Color(0xFF246156) else Color.Gray
-                    )
-                }
-                IconButton(
-                    onClick = { currentStyles = currentStyles.toggle(TextStyle.ITALIC) }
-                ) {
-                    Icon(
-                        Icons.Filled.FormatItalic,
-                        contentDescription = "Italic",
-                        tint = if (currentStyles.contains(TextStyle.ITALIC)) Color(0xFF246156) else Color.Gray
-                    )
-                }
-                IconButton(
-                    onClick = { currentStyles = currentStyles.toggle(TextStyle.UNDERLINE) }
-                ) {
-                    Icon(
-                        Icons.Filled.FormatUnderlined,
-                        contentDescription = "Underline",
-                        tint = if (currentStyles.contains(TextStyle.UNDERLINE)) Color(0xFF246156) else Color.Gray
-                    )
-                }
-                IconButton(
-                    onClick = { currentStyles = currentStyles.toggle(TextStyle.STRIKETHROUGH) }
-                ) {
-                    Icon(
-                        Icons.Filled.StrikethroughS,
-                        contentDescription = "Strikethrough",
-                        tint = if (currentStyles.contains(TextStyle.STRIKETHROUGH)) Color(0xFF246156) else Color.Gray
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+            // Кнопка добавления записи
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -267,109 +332,91 @@ fun NoteScreen(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(if (editingRecordIndex == null) "Add Record" else "Update Record")
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
-
-                Button(
-                    onClick = { isCheckboxMode = !isCheckboxMode },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(if (isCheckboxMode) "Switch to Text" else "Switch to Checkbox")
-                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    if (titleState.isNotBlank()) {
-                        coroutineScope.launch {
-                            onNoteSaved(titleState, records)
-                        }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Title cannot be empty",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save Note")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+            // Заголовок для списка записей
             Text("Records:", style = MaterialTheme.typography.h6)
-            records.forEachIndexed { index, record ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (record.type == "checkbox") {
-                        record.isChecked?.let { isChecked ->
-                            val isCheckedState =
-                                remember { mutableStateOf(record.isChecked ?: false) }
-                            Checkbox(
-                                checked = isCheckedState.value,
-                                onCheckedChange = { isCheckedNew ->
-                                    isCheckedState.value = isCheckedNew
-                                    record.isChecked = isCheckedNew
-                                },
-                                colors = CheckboxDefaults.colors(
-                                    checkedColor = Color(0xFF246156),  // Колір для відміченого стану
-                                    uncheckedColor = Color.Gray,      // Колір для невідміченого стану
-                                    checkmarkColor = Color.White      // Колір галочки
-                                )
-                            )
-                        }
-                    }
-                    Text(
-                        text = record.content,
-                        style = MaterialTheme.typography.body1,
-                        fontWeight = if (record.styles.contains(TextStyle.BOLD)) FontWeight.Bold else FontWeight.Normal,
-                        fontStyle = if (record.styles.contains(TextStyle.ITALIC)) FontStyle.Italic else FontStyle.Normal,
-                        textDecoration = when {
-                            record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(TextStyle.STRIKETHROUGH) ->
-                                TextDecoration.combine(
-                                    listOf(
-                                        TextDecoration.Underline,
-                                        TextDecoration.LineThrough
+
+            // Прокручиваемая область для записей
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f) // Используем вес, чтобы область занимала оставшееся пространство
+                    .verticalScroll(rememberScrollState()) // Добавляем прокрутку
+            ) {
+                records.forEachIndexed { index, record ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (record.type == "checkbox") {
+                            record.isChecked?.let { isChecked ->
+                                val isCheckedState =
+                                    remember { mutableStateOf(record.isChecked ?: false) }
+                                Checkbox(
+                                    checked = isCheckedState.value,
+                                    onCheckedChange = { isCheckedNew ->
+                                        isCheckedState.value = isCheckedNew
+                                        record.isChecked = isCheckedNew
+                                    },
+                                    colors = CheckboxDefaults.colors(
+                                        checkedColor = Color(0xFF246156),  // Цвет для отмеченного состояния
+                                        uncheckedColor = Color.Gray,      // Цвет для неотмеченного состояния
+                                        checkmarkColor = Color.White      // Цвет галочки
                                     )
                                 )
-
-                            record.styles.contains(TextStyle.UNDERLINE) -> TextDecoration.Underline
-                            record.styles.contains(TextStyle.STRIKETHROUGH) -> TextDecoration.LineThrough
-                            else -> TextDecoration.None
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .weight(1f)
-                            .clickable {
-                                currentRecordText = record.content
-                                isCheckboxMode = record.type == "checkbox"
-                                currentStyles = record.styles.toSet()
-                                editingRecordIndex = index
                             }
-                    )
-
-                    IconButton(
-                        onClick = {
-                            records = records.toMutableList().apply { removeAt(index) }
                         }
-                    ) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Delete Record")
+                        Text(
+                            text = record.content,
+                            style = MaterialTheme.typography.body1,
+                            fontWeight = if (record.styles.contains(TextStyle.BOLD)) FontWeight.Bold else FontWeight.Normal,
+                            fontStyle = if (record.styles.contains(TextStyle.ITALIC)) FontStyle.Italic else FontStyle.Normal,
+                            textDecoration = when {
+                                record.styles.contains(TextStyle.UNDERLINE) && record.styles.contains(TextStyle.STRIKETHROUGH) ->
+                                    TextDecoration.combine(
+                                        listOf(
+                                            TextDecoration.Underline,
+                                            TextDecoration.LineThrough
+                                        )
+                                    )
+
+                                record.styles.contains(TextStyle.UNDERLINE) -> TextDecoration.Underline
+                                record.styles.contains(TextStyle.STRIKETHROUGH) -> TextDecoration.LineThrough
+                                else -> TextDecoration.None
+                            },
+                            modifier = Modifier
+                                .padding(vertical = 4.dp)
+                                .weight(1f)
+                                .clickable {
+                                    currentRecordText = record.content
+                                    isCheckboxMode = record.type == "checkbox"
+                                    currentStyles = record.styles.toSet()
+                                    editingRecordIndex = index
+                                }
+                        )
+
+                        IconButton(
+                            onClick = {
+                                records = records.toMutableList().apply { removeAt(index) }
+                            }
+                        ) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete Record")
+                        }
                     }
                 }
             }
         }
+
     }
 }
 

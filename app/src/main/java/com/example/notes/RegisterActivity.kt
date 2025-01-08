@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -88,7 +89,16 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.Transparent,
+                focusedIndicatorColor = Color(0xFF246156),
+                unfocusedIndicatorColor = Color.Gray,
+                cursorColor = Color(0xFF246156),
+                textColor = Color.Black,
+                focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
+                unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+            )
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
@@ -96,16 +106,33 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
             onValueChange = { password = it },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.Transparent,
+                focusedIndicatorColor = Color(0xFF246156),
+                unfocusedIndicatorColor = Color.Gray,
+                cursorColor = Color(0xFF246156),
+                textColor = Color.Black,
+                focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
+                unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = { onRegister(email, password) },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()) {
             Text("Register")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = onNavigateToLogin) {
+        TextButton(
+            onClick = onNavigateToLogin,
+            colors = ButtonDefaults.textButtonColors(
+                backgroundColor = Color.Transparent, // Убираем фиолетовый фон
+                contentColor = Color(0xFF246156)
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Already have an account? Login", color = Color(0xFF246156))
         }
     }
