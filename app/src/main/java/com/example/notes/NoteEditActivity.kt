@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -304,12 +305,14 @@ fun NoteScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Кнопка добавления записи
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center // Keeps the button centered
             ) {
                 Button(
                     onClick = {
@@ -332,19 +335,16 @@ fun NoteScreen(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(30.dp),
+                    modifier = Modifier
+                        .width(240.dp) // Уменьшена ширина кнопки
+                        .height(56.dp) // Высота кнопки
                 ) {
-                    Text(if (editingRecordIndex == null) "Add Record" else "Update Record")
+                    Text(if (editingRecordIndex == null) "Add Record" else "Update Record", fontSize = 18.sp)
                 }
-
-                Spacer(modifier = Modifier.width(8.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Заголовок для списка записей
-            Text("Records:", style = MaterialTheme.typography.h6)
 
             // Прокручиваемая область для записей
             Column(

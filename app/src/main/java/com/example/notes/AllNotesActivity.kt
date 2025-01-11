@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -22,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 
 class AllNotesActivity : ComponentActivity() {
     private val noteDatabase = NoteDatabase(FirebaseFirestore.getInstance())
@@ -108,7 +110,13 @@ fun NotesScreen(
                     .padding(padding)
             ) {
                 if (notes.isEmpty()) {
-                    Text("No notes available.", modifier = Modifier.padding(16.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.frame),
+                        contentDescription = "",
+                        modifier = Modifier
+
+                            .align(Alignment.Center) // Центрирование изображения
+                    )
                 } else {
                     NotesGrid(notes = notes, onNoteClick = onViewNote)
                 }

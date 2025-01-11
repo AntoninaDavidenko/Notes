@@ -21,6 +21,15 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.example.notes.R
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 class LoginActivity : ComponentActivity() {
 
@@ -123,12 +132,22 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
     var password by remember { mutableStateOf("") }
 
     Column(
+
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "",
+            modifier = Modifier.clip(
+                CircleShape
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -143,7 +162,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
                 unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
             )
-        )
+       )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = password,
@@ -161,19 +180,33 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
             )
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onLogin(email, password) },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()) {
-            Text("Login")
+        Spacer(modifier = Modifier.height(40.dp))
+        Button(
+            onClick = { onLogin(email, password) },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF246156),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(30.dp),
+            modifier = Modifier
+                .width(240.dp) // Уменьшена ширина кнопки
+                .height(56.dp) // Высота кнопки
+        ) {
+            Text("Login", fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onGoogleLogin,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()) {
-            Text("Login with Google")
+        Button(
+            onClick = onGoogleLogin,
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF246156),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(30.dp),
+            modifier = Modifier
+                .width(240.dp) // Уменьшена ширина кнопки
+                .height(56.dp) // Высота кнопки
+        ) {
+            Text("Login with Google", fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(
@@ -183,8 +216,9 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 contentColor = Color(0xFF246156)
             ),
             modifier = Modifier.fillMaxWidth()
+
         ) {
-            Text("Don't have an account? Register")
+            Text("Don't have an account? Register", fontSize = 16.sp)
         }
     }
 }

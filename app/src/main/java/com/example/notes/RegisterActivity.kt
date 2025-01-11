@@ -6,19 +6,25 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 
 class RegisterActivity : ComponentActivity() {
@@ -81,10 +87,19 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "",
+            modifier = Modifier.clip(
+                CircleShape
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -120,9 +135,12 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = { onRegister(email, password) },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()) {
-            Text("Register")
+            shape = RoundedCornerShape(30.dp),
+            modifier = Modifier
+                .width(240.dp) // Уменьшена ширина кнопки
+                .height(56.dp) // Высота кнопки
+        ) {
+            Text("Register", fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(
@@ -133,7 +151,7 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Already have an account? Login", color = Color(0xFF246156))
+            Text("Already have an account? Login", color = Color(0xFF246156), fontSize = 16.sp)
         }
     }
 }

@@ -154,33 +154,43 @@ fun NoteViewScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Text(
-                text = titleState,
-                style = MaterialTheme.typography.h5,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            // Заголовок и дата
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp) // Отступ, чтобы выровнять текст
+            ) {
+                Text(
+                    text = titleState,
+                    style = MaterialTheme.typography.h5,
+                    modifier = Modifier.padding(bottom = 8.dp) // Отступ между заголовком и датой
+                )
 
-            Text(
-                text = modifiedAtState,
-                style = MaterialTheme.typography.caption,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+                Text(
+                    text = modifiedAtState,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
             LazyColumn {
                 items(records) { record ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp) // Единый отступ слева
                     ) {
                         if (record.type == "checkbox") {
                             Checkbox(
                                 checked = record.isChecked == true,
                                 onCheckedChange = null, // Чекбоксы только для просмотра
                                 colors = CheckboxDefaults.colors(
-                                    checkedColor = Color(0xFF246156),  // Колір для відміченого стану
-                                    uncheckedColor = Color.Gray,      // Колір для невідміченого стану
-                                    checkmarkColor = Color.White      // Колір галочки
-                                )
+                                    checkedColor = Color(0xFF246156),  // Цвет для отмеченного состояния
+                                    uncheckedColor = Color.Gray,      // Цвет для неотмеченного состояния
+                                    checkmarkColor = Color.White      // Цвет галочки
+                                ),
+                                modifier = Modifier.padding(end = 8.dp) // Отступ между чекбоксом и текстом
                             )
                         }
                         Text(
@@ -195,11 +205,12 @@ fun NoteViewScreen(
                                 record.styles.contains(TextStyle.STRIKETHROUGH) -> TextDecoration.LineThrough
                                 else -> TextDecoration.None
                             },
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
                 }
             }
+
         }
     }
 }
