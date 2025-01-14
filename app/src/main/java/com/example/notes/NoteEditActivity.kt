@@ -28,6 +28,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
+import android.view.WindowManager
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+
 class NoteEditActivity : ComponentActivity() {
     private val auth = FirebaseAuth.getInstance()
     private val noteDatabase = NoteDatabase(FirebaseFirestore.getInstance())
@@ -35,6 +40,10 @@ class NoteEditActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Configure window to handle IME (Input Method Editor)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         // Получаем noteId, если редактируем заметку
         noteId = intent.getStringExtra("NOTE_ID")
@@ -163,6 +172,9 @@ fun NoteScreen(
     }
 
     Scaffold(
+        modifier = Modifier
+            .navigationBarsPadding() // Для учета нижних жестов/панели
+            .statusBarsPadding(),
         topBar = {
             TopAppBar(
                 title = { Text(if (noteId != null) "Edit Note" else "Create Note") },
@@ -201,6 +213,7 @@ fun NoteScreen(
         },
         bottomBar = @androidx.compose.runtime.Composable {
             BottomAppBar(
+                modifier = Modifier.imePadding(),
                 backgroundColor = Color.White,
                 contentColor = Color(0xFF246156)
             ) {

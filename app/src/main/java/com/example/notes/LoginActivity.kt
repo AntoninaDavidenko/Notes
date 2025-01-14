@@ -31,6 +31,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+
 class LoginActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
@@ -131,6 +137,10 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val emailFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
 
         modifier = Modifier
@@ -150,9 +160,26 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                // Убираем символы новой строки из вводимого текста
+                if (!it.contains('\n')) {
+                    email = it
+                }
+            },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(emailFocusRequester)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Enter) {
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            passwordFocusRequester.requestFocus()
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                },
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,
                 focusedIndicatorColor = Color(0xFF246156),
@@ -161,14 +188,32 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 textColor = Color.Black,
                 focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
                 unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
-            )
+            ),
+            singleLine = true
        )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                // Убираем символы новой строки из вводимого текста
+                if (!it.contains('\n')) {
+                    password = it
+                }
+            },
             label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(passwordFocusRequester)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Enter) {
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            keyboardController?.hide()
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                },
             visualTransformation = PasswordVisualTransformation(),
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,
@@ -178,7 +223,8 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 textColor = Color.Black,
                 focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
                 unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
-            )
+            ),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(40.dp))
         Button(
