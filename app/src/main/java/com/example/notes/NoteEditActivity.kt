@@ -26,10 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
+
 
 import android.view.WindowManager
-import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 
@@ -41,11 +40,7 @@ class NoteEditActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Configure window to handle IME (Input Method Editor)
-        //WindowCompat.setDecorFitsSystemWindows(window, false)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-
-        // Получаем noteId, если редактируем заметку
         noteId = intent.getStringExtra("NOTE_ID")
 
         setContent {
@@ -56,19 +51,15 @@ class NoteEditActivity : ComponentActivity() {
                 },
                 onLoadNote = { onNoteLoaded ->
                     loadNoteFromDatabase(onNoteLoaded)
-                },
-                onDeleteNote = {
-                    deleteNoteFromDatabase()
                 }
             )
         }
     }
 
-
     private fun saveNoteToDatabase(title: String, records: List<Record>) {
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Користувач неавторизований", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -83,7 +74,7 @@ class NoteEditActivity : ComponentActivity() {
             records = records,
             onSuccess = {
                 runOnUiThread {
-                    Toast.makeText(this, "Note saved successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Нотатка успішно збережена", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, NoteViewActivity::class.java).apply {
                         putExtra("NOTE_ID", note.id)
                     }
@@ -93,7 +84,7 @@ class NoteEditActivity : ComponentActivity() {
             },
             onFailure = { exception ->
                 runOnUiThread {
-                    Toast.makeText(this, "Error saving note: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Не вдалося зберегти нотатку: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -113,32 +104,7 @@ class NoteEditActivity : ComponentActivity() {
             },
             onFailure = { exception ->
                 runOnUiThread {
-                    Toast.makeText(this, "Error loading note: ${exception.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
-    }
-
-    private fun deleteNoteFromDatabase() {
-        val userId = auth.currentUser?.uid
-        if (userId == null || noteId == null) {
-            Toast.makeText(this, "Cannot delete note", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        noteDatabase.deleteNote(
-            userId = userId,
-            noteId = noteId!!,
-            onSuccess = {
-                runOnUiThread {
-                    Toast.makeText(this, "Note deleted successfully", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, AllNotesActivity::class.java))
-                    finish()
-                }
-            },
-            onFailure = { exception ->
-                runOnUiThread {
-                    Toast.makeText(this, "Error deleting note: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Не вдалося завантажити нотатку: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -149,8 +115,7 @@ class NoteEditActivity : ComponentActivity() {
 fun NoteScreen(
     noteId: String?,
     onNoteSaved: (String, List<Record>) -> Unit,
-    onLoadNote: ((Note, List<Record>) -> Unit) -> Unit,
-    onDeleteNote: () -> Unit
+    onLoadNote: ((Note, List<Record>) -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     var titleState by remember { mutableStateOf("") }
@@ -159,8 +124,6 @@ fun NoteScreen(
     var currentStyles by remember { mutableStateOf(setOf<TextStyle>()) }
     var isCheckboxMode by remember { mutableStateOf(false) }
     var editingRecordIndex by remember { mutableStateOf<Int?>(null) }
-
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(noteId) {
         if (noteId != null) {
@@ -173,11 +136,11 @@ fun NoteScreen(
 
     Scaffold(
         modifier = Modifier
-            .navigationBarsPadding() // Для учета нижних жестов/панели
+            .navigationBarsPadding()
             .statusBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text(if (noteId != null) "Edit Note" else "Create Note") },
+                title = { Text(if (noteId != null) "Редагування нотатки" else "Створення нотатки") },
                 backgroundColor = Color(0xFF246156),
                 contentColor = Color.White,
                 navigationIcon = {
@@ -201,7 +164,7 @@ fun NoteScreen(
                         } else {
                             Toast.makeText(
                                 context,
-                                "Title cannot be empty",
+                                "Заголовок не може бути порожнім",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -278,11 +241,10 @@ fun NoteScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Поле для заголовка
             TextField(
                 value = titleState,
                 onValueChange = { titleState = it },
-                label = { Text("Title") },
+                label = { Text("Заголовок") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp)),
@@ -292,18 +254,17 @@ fun NoteScreen(
                     unfocusedIndicatorColor = Color.Gray,
                     cursorColor = Color(0xFF246156),
                     textColor = Color.Black,
-                    focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
-                    unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                    focusedLabelColor = Color(0xFF246156),
+                    unfocusedLabelColor = Color.Gray
                 ),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Поле для контента
             TextField(
                 value = currentRecordText,
                 onValueChange = { currentRecordText = it },
-                label = { Text("Content") },
+                label = { Text("Текст") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp)),
@@ -313,19 +274,18 @@ fun NoteScreen(
                     unfocusedIndicatorColor = Color.Gray,
                     cursorColor = Color(0xFF246156),
                     textColor = Color.Black,
-                    focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
-                    unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                    focusedLabelColor = Color(0xFF246156),
+                    unfocusedLabelColor = Color.Gray
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Кнопка добавления записи
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center // Keeps the button centered
+                horizontalArrangement = Arrangement.Center
             ) {
                 Button(
                     onClick = {
@@ -350,21 +310,20 @@ fun NoteScreen(
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
                     shape = RoundedCornerShape(30.dp),
                     modifier = Modifier
-                        .width(240.dp) // Уменьшена ширина кнопки
-                        .height(56.dp) // Высота кнопки
+                        .width(240.dp)
+                        .height(56.dp)
                 ) {
-                    Text(if (editingRecordIndex == null) "Add Record" else "Update Record", fontSize = 18.sp)
+                    Text(if (editingRecordIndex == null) "Додати запис" else "Оновити запис", fontSize = 18.sp)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Прокручиваемая область для записей
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Используем вес, чтобы область занимала оставшееся пространство
-                    .verticalScroll(rememberScrollState()) // Добавляем прокрутку
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
             ) {
                 records.forEachIndexed { index, record ->
                     Row(
@@ -382,9 +341,9 @@ fun NoteScreen(
                                         record.isChecked = isCheckedNew
                                     },
                                     colors = CheckboxDefaults.colors(
-                                        checkedColor = Color(0xFF246156),  // Цвет для отмеченного состояния
-                                        uncheckedColor = Color.Gray,      // Цвет для неотмеченного состояния
-                                        checkmarkColor = Color.White      // Цвет галочки
+                                        checkedColor = Color(0xFF246156),
+                                        uncheckedColor = Color.Gray,
+                                        checkmarkColor = Color.White
                                     )
                                 )
                             }

@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
@@ -40,7 +39,6 @@ class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
 
         setContent {
@@ -61,14 +59,12 @@ class RegisterActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
-                    Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Аккаунт успішно створено!", Toast.LENGTH_SHORT).show()
                     navigateToNotesActivity()
                 } else {
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(
-                        this,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT
+                        this, "Не вдалося авторизуватися.", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -113,12 +109,11 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
         TextField(
             value = email,
             onValueChange = {
-                // Убираем символы новой строки из вводимого текста
                 if (!it.contains('\n')) {
                     email = it
                 }
             },
-            label = { Text("Email") },
+            label = { Text("Пошта") },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(emailFocusRequester)
@@ -138,8 +133,8 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
                 unfocusedIndicatorColor = Color.Gray,
                 cursorColor = Color(0xFF246156),
                 textColor = Color.Black,
-                focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
-                unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                focusedLabelColor = Color(0xFF246156),
+                unfocusedLabelColor = Color.Gray
             ),
             singleLine = true
         )
@@ -147,12 +142,11 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
         TextField(
             value = password,
             onValueChange = {
-                // Убираем символы новой строки из вводимого текста
                 if (!it.contains('\n')) {
                     password = it
                 }
             },
-            label = { Text("Password") },
+            label = { Text("Пароль") },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(passwordFocusRequester)
@@ -173,8 +167,8 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
                 unfocusedIndicatorColor = Color.Gray,
                 cursorColor = Color(0xFF246156),
                 textColor = Color.Black,
-                focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
-                unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                focusedLabelColor = Color(0xFF246156),
+                unfocusedLabelColor = Color.Gray
             ),
             singleLine = true
         )
@@ -183,21 +177,21 @@ fun RegisterScreen(onRegister: (String, String) -> Unit, onNavigateToLogin: () -
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
-                .width(240.dp) // Уменьшена ширина кнопки
-                .height(56.dp) // Высота кнопки
+                .width(240.dp)
+                .height(56.dp)
         ) {
-            Text("Register", fontSize = 18.sp)
+            Text("Зареєструватися", fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(
             onClick = onNavigateToLogin,
             colors = ButtonDefaults.textButtonColors(
-                backgroundColor = Color.Transparent, // Убираем фиолетовый фон
+                backgroundColor = Color.Transparent,
                 contentColor = Color(0xFF246156)
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Already have an account? Login", color = Color(0xFF246156), fontSize = 16.sp)
+            Text("Вже маєте аккаунт? Увійти", color = Color(0xFF246156), fontSize = 16.sp)
         }
     }
 }

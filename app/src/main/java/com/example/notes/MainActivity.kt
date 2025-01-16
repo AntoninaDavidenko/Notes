@@ -11,18 +11,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-        // Инициализация Firestore
         firestore = FirebaseFirestore.getInstance()
 
-        // Проверяем текущего пользователя
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // Если пользователь авторизован, переходим к NotesActivity
             navigateToNotesActivity()
         } else {
-            // Если пользователь не авторизован, переходим к LoginActivity
             navigateToLoginActivity()
         }
     }
@@ -30,12 +24,12 @@ class MainActivity : ComponentActivity() {
     private fun navigateToNotesActivity() {
         val intent = Intent(this, AllNotesActivity::class.java)
         startActivity(intent)
-        finish() // Закрываем MainActivity, чтобы пользователь не мог вернуться назад
+        finish()
     }
 
     private fun navigateToLoginActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
-        finish() // Закрываем MainActivity, чтобы пользователь не мог вернуться назад
+        finish()
     }
 }

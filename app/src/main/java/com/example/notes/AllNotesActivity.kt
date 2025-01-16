@@ -33,7 +33,7 @@ class AllNotesActivity : ComponentActivity() {
         setContent {
             NotesScreen(
                 onLogout = { logout() },
-                onCreateNote = { navigateToNoteActivity() },
+                onCreateNote = { navigateToNoteEditActivity() },
                 onViewNote = { noteId -> navigateToNoteViewActivity(noteId) },
                 noteDatabase = noteDatabase
             )
@@ -53,7 +53,7 @@ class AllNotesActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToNoteActivity(noteId: String? = null) {
+    private fun navigateToNoteEditActivity(noteId: String? = null) {
         val intent = Intent(this, NoteEditActivity::class.java)
         noteId?.let { intent.putExtra("NOTE_ID", it) }
         startActivity(intent)
@@ -87,13 +87,13 @@ fun NotesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notes") },
+                title = { Text("Нотатки") },
                 backgroundColor = Color(0xFF246156),
                 contentColor = Color.White,
                 actions = {
                     TextButton(onClick = onLogout,
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF246156), contentColor = Color.White),) {
-                        Text("Logout", color = Color.White)
+                        Text("Вихід", color = Color.White)
                     }
                 }
             )
@@ -112,10 +112,10 @@ fun NotesScreen(
                 if (notes.isEmpty()) {
                     Image(
                         painter = painterResource(id = R.drawable.frame),
-                        contentDescription = "",
+                        contentDescription = "No notes",
                         modifier = Modifier
 
-                            .align(Alignment.Center) // Центрирование изображения
+                            .align(Alignment.Center)
                     )
                 } else {
                     NotesGrid(notes = notes, onNoteClick = onViewNote)
@@ -171,7 +171,7 @@ fun NoteCard(note: Note, onNoteClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp) // Фиксированная высота карточки
+            .height(150.dp)
             .clickable { onNoteClick(note.id) },
         elevation = 4.dp,
         shape = RoundedCornerShape(16.dp)
@@ -192,8 +192,8 @@ fun NoteCard(note: Note, onNoteClick: (String) -> Unit) {
                      record.content
                 },
                 style = MaterialTheme.typography.body2,
-                maxLines = 3, // Ограничение в 3 строки
-                overflow = TextOverflow.Ellipsis, // Добавление ... в случае обрезки
+                maxLines = 3, // Обмеження в 3 рядки
+                overflow = TextOverflow.Ellipsis, // Якщо більше рядків заміть них додається ...
                 modifier = Modifier.weight(1f)
             )
 
@@ -205,7 +205,6 @@ fun NoteCard(note: Note, onNoteClick: (String) -> Unit) {
         }
     }
 }
-
 
 fun formatDate(date: Date): String {
     val formatter = SimpleDateFormat("HH:mm dd.MM.yyyy", Locale.getDefault())

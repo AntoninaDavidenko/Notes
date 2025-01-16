@@ -31,7 +31,6 @@ class NoteViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Получаем noteId для просмотра
         noteId = intent.getStringExtra("NOTE_ID")
 
         setContent {
@@ -68,7 +67,7 @@ class NoteViewActivity : ComponentActivity() {
             },
             onFailure = { exception ->
                 runOnUiThread {
-                    Toast.makeText(this, "Error loading note: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Не вдалося завантажити нотатку: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -77,7 +76,7 @@ class NoteViewActivity : ComponentActivity() {
     private fun deleteNoteFromDatabase() {
         val userId = auth.currentUser?.uid
         if (userId == null || noteId == null) {
-            Toast.makeText(this, "Cannot delete note", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Не вдалося видалити нотатку", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -86,14 +85,14 @@ class NoteViewActivity : ComponentActivity() {
             noteId = noteId!!,
             onSuccess = {
                 runOnUiThread {
-                    Toast.makeText(this, "Note deleted successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Успішно видалено", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, AllNotesActivity::class.java))
                     finish()
                 }
             },
             onFailure = { exception ->
                 runOnUiThread {
-                    Toast.makeText(this, "Error deleting note: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Помилка при видаленні: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -125,7 +124,7 @@ fun NoteViewScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("View Note") },
+                title = { Text("Перегляд нотатки") },
                 backgroundColor = Color(0xFF246156),
                 contentColor = Color.White,
                 navigationIcon = {
@@ -154,16 +153,15 @@ fun NoteViewScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Заголовок и дата
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp) // Отступ, чтобы выровнять текст
+                    .padding(start = 8.dp)
             ) {
                 Text(
                     text = titleState,
                     style = MaterialTheme.typography.h5,
-                    modifier = Modifier.padding(bottom = 8.dp) // Отступ между заголовком и датой
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Text(
@@ -179,18 +177,18 @@ fun NoteViewScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp) // Единый отступ слева
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         if (record.type == "checkbox") {
                             Checkbox(
                                 checked = record.isChecked == true,
-                                onCheckedChange = null, // Чекбоксы только для просмотра
+                                onCheckedChange = null,
                                 colors = CheckboxDefaults.colors(
-                                    checkedColor = Color(0xFF246156),  // Цвет для отмеченного состояния
-                                    uncheckedColor = Color.Gray,      // Цвет для неотмеченного состояния
-                                    checkmarkColor = Color.White      // Цвет галочки
+                                    checkedColor = Color(0xFF246156),
+                                    uncheckedColor = Color.Gray,
+                                    checkmarkColor = Color.White
                                 ),
-                                modifier = Modifier.padding(end = 8.dp) // Отступ между чекбоксом и текстом
+                                modifier = Modifier.padding(end = 8.dp)
                             )
                         }
                         Text(
@@ -210,7 +208,6 @@ fun NoteViewScreen(
                     }
                 }
             }
-
         }
     }
 }

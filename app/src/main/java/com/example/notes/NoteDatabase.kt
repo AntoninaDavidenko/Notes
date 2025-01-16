@@ -8,7 +8,6 @@ import java.util.Date
 
 class NoteDatabase(private val firestore: FirebaseFirestore) {
 
-    // Получение всех заметок пользователя
     fun getAllNotes(
         userId: String,
         onSuccess: (List<Note>) -> Unit,
@@ -33,7 +32,6 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
             }
     }
 
-    // Получение одной заметки по ID
     fun getNoteById(
         userId: String,
         noteId: String,
@@ -54,7 +52,6 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
                         modifiedAt = document.getTimestamp("modifiedAt")?.toDate() ?: Date()
                     )
 
-                    // Получаем записи заметки
                     noteRef.collection("records")
                         .get()
                         .addOnSuccessListener { recordsSnapshot ->
@@ -71,7 +68,6 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
             }
     }
 
-    // Сохранение новой заметки или обновление существующей
     fun saveNote(
         userId: String,
         note: Note,
@@ -93,12 +89,11 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
 
         val noteData = mapOf(
             "title" to note.title,
-            "modifiedAt" to FieldValue.serverTimestamp() // Используем серверное время
+            "modifiedAt" to FieldValue.serverTimestamp()
         )
 
         noteRef.set(noteData)
             .addOnSuccessListener {
-                // Очистка старых записей и добавление новых
                 noteRef.collection("records").get()
                     .addOnSuccessListener { snapshot ->
                         snapshot.documents.forEach { it.reference.delete() }
@@ -119,7 +114,6 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
             .addOnFailureListener { exception -> onFailure(exception) }
     }
 
-    // Удаление заметки по ID
     fun deleteNote(
         userId: String,
         noteId: String,
@@ -145,7 +139,6 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
             .addOnFailureListener { exception -> onFailure(exception) }
     }
 
-    // Парсинг записей из QuerySnapshot
     private fun parseRecords(snapshot: QuerySnapshot): List<Record> {
         return snapshot.documents.map { document ->
             Record(
@@ -156,33 +149,5 @@ class NoteDatabase(private val firestore: FirebaseFirestore) {
                 styles = (document.get("styles") as? List<String>)?.map { TextStyle.valueOf(it) } ?: emptyList()
             )
         }.sortedBy { it.order }
-    }
-
-    fun updateRecord(
-        userId: String,
-        noteId: String,
-        order: Int,
-        updatedRecord: Record,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val recordRef = firestore.collection("users")
-            .document(userId)
-            .collection("notes")
-            .document(noteId)
-            .collection("records")
-            .document(order.toString())
-
-        val updatedData = mapOf(
-            "content" to updatedRecord.content,
-            "type" to updatedRecord.type,
-            "is_checked" to updatedRecord.isChecked,
-            "order" to updatedRecord.order,
-            "styles" to updatedRecord.styles.map { it.name }
-        )
-
-        recordRef.set(updatedData)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { exception -> onFailure(exception) }
     }
 }

@@ -21,17 +21,13 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.example.notes.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
@@ -45,10 +41,9 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
 
-        // Configure Google Sign In
+        // Налаштування входу в Google
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -75,11 +70,26 @@ class LoginActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "signInWithEmail:success")
-                    Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Авторизація успішна!", Toast.LENGTH_SHORT).show()
                     navigateToNotesActivity()
                 } else {
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Не вдалося авторизуватися.", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "signInWithCredential:success")
+                    Toast.makeText(this, "Google авторизація успішна!", Toast.LENGTH_SHORT).show()
+                    navigateToNotesActivity()
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Toast.makeText(this, "Не вдалося авторизуватися.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -100,24 +110,9 @@ class LoginActivity : ComponentActivity() {
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
                 Log.w(TAG, "Google sign in failed", e)
-                Toast.makeText(this, "Google sign-in failed.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Не вдалося авторизуватися через Google.", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Log.d(TAG, "signInWithCredential:success")
-                    Toast.makeText(this, "Google login successful!", Toast.LENGTH_SHORT).show()
-                    navigateToNotesActivity()
-                } else {
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
-                }
-            }
     }
 
     private fun navigateToNotesActivity() {
@@ -161,12 +156,11 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
         TextField(
             value = email,
             onValueChange = {
-                // Убираем символы новой строки из вводимого текста
                 if (!it.contains('\n')) {
                     email = it
                 }
             },
-            label = { Text("Email") },
+            label = { Text("Пошта") },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(emailFocusRequester)
@@ -186,8 +180,8 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 unfocusedIndicatorColor = Color.Gray,
                 cursorColor = Color(0xFF246156),
                 textColor = Color.Black,
-                focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
-                unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                focusedLabelColor = Color(0xFF246156),
+                unfocusedLabelColor = Color.Gray
             ),
             singleLine = true
        )
@@ -195,12 +189,11 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
         TextField(
             value = password,
             onValueChange = {
-                // Убираем символы новой строки из вводимого текста
                 if (!it.contains('\n')) {
                     password = it
                 }
             },
-            label = { Text("Password") },
+            label = { Text("Пароль") },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(passwordFocusRequester)
@@ -221,8 +214,8 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
                 unfocusedIndicatorColor = Color.Gray,
                 cursorColor = Color(0xFF246156),
                 textColor = Color.Black,
-                focusedLabelColor = Color(0xFF246156), // Цвет текста label при фокусе
-                unfocusedLabelColor = Color.Gray // Цвет текста label без фокуса
+                focusedLabelColor = Color(0xFF246156),
+                unfocusedLabelColor = Color.Gray
             ),
             singleLine = true
         )
@@ -235,10 +228,10 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
             ),
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
-                .width(240.dp) // Уменьшена ширина кнопки
-                .height(56.dp) // Высота кнопки
+                .width(240.dp)
+                .height(56.dp)
         ) {
-            Text("Login", fontSize = 18.sp)
+            Text("Увійти", fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(
@@ -249,22 +242,22 @@ fun LoginScreen(onLogin: (String, String) -> Unit, onGoogleLogin: () -> Unit, on
             ),
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
-                .width(240.dp) // Уменьшена ширина кнопки
-                .height(56.dp) // Высота кнопки
+                .width(240.dp)
+                .height(56.dp)
         ) {
-            Text("Login with Google", fontSize = 18.sp)
+            Text("Увійти через Google", fontSize = 18.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(
             onClick = onNavigateToRegister,
             colors = ButtonDefaults.textButtonColors(
-                backgroundColor = Color.Transparent, // Убираем фиолетовый фон
+                backgroundColor = Color.Transparent,
                 contentColor = Color(0xFF246156)
             ),
             modifier = Modifier.fillMaxWidth()
 
         ) {
-            Text("Don't have an account? Register", fontSize = 16.sp)
+            Text("Не маєте аккаунту? Зареєструватися", fontSize = 16.sp)
         }
     }
 }
